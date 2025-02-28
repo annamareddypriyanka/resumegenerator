@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    h1, h2 {
+      color: #007BFF;
+      text-align: center;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    input, textarea {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 100%;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .generate-btn, #saveAsPdf {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    .generate-btn:hover, #saveAsPdf:hover {
+      background-color: #0056b3;
+    }
+    .resume {
+      padding: 20px;
+      background-color: #fff;
+      border: 2px solid #007BFF;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: none;
+    }
+    .resume-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .resume-section {
+      margin-bottom: 20px;
+    }
+    .resume-section h2 {
+      font-size: 22px;
+      border-bottom: 2px solid #007BFF;
+      padding-bottom: 5px;
+    }
+    .resume p, .resume ul {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    /* Additional styles for mobile responsiveness */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      .form-row {
+        margin-bottom: 10px;
+      }
+      .generate-btn {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Resume Generator</h1>
+    <form id="resumeForm">
+      <div class="form-section">
+        <h2>Personal Information</h2>
+        <div class="form-row">
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" >
+        </div>
+        <div class="form-row">
+          <label for="email">Email:</label>
+          <input type="email" id="email" >
+        </div>
+        <div class="form-row">
+          <label for="phone">Phone:</label>
+          <input type="tel" id="phone" >
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h2>Skills</h2>
+        <input type="text" id="skills" placeholder="Separate skills with commas">
+      </div>
+
+      <div class="form-section">
+        <h2>Education</h2>
+        <textarea id="education" ></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>Experience</h2>
+        <textarea id="experience" ></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>Academic Projects</h2>
+        <textarea id="projects"></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>Positions of Responsibility</h2>
+        <textarea id="responsibility"></textarea>
+      </div>
+
+      <div class="form-section">
+        <h2>Achievements / Hobbies</h2>
+        <textarea id="achievements"></textarea>
+      </div>
+      
+      <button type="submit" class="generate-btn">Generate Resume</button>
+      <button type="button" id="uploadProfilePic" class="generate-btn">Upload Profile Picture</button>
+    </form>
+
+    <div id="resumePreview" class="resume">
+      <div class="resume-header">
+        <h1 id="previewName"></h1>
+        <p id="previewEmail"></p>
+        <p id="previewPhone"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Skills</h2>
+        <p id="previewSkills"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Education</h2>
+        <p id="previewEducation"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Experience</h2>
+        <p id="previewExperience"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Academic Projects</h2>
+        <p id="previewProjects"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Positions of Responsibility</h2>
+        <p id="previewResponsibility"></p>
+      </div>
+      <div class="resume-section">
+        <h2>Achievements / Hobbies</h2>
+        <p id="previewAchievements"></p>
+      </div>
+      <button id="saveAsPdf">Save as PDF</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script>
+    document.getElementById('resumeForm').addEventListener('submit', function(e) {
+      // Validation for required fields
+      const requiredFields = ['name', 'email', 'phone', 'skills', 'education', 'experience', 'projects', 'responsibility', 'achievements'];
+      for (let id of requiredFields) {
+        if (!document.getElementById(id).value) {
+          alert(id.charAt(0).toUpperCase() + id.slice(1) + ' is required.');
+          return;
+        }
+      }
+
+      e.preventDefault();
+      document.getElementById('resumePreview').style.display = 'block';
+      ['name', 'email', 'phone', 'skills', 'education', 'experience', 'projects', 'responsibility', 'achievements'].forEach(id => {
+        document.getElementById('preview' + id.charAt(0).toUpperCase() + id.slice(1)).textContent = document.getElementById(id).value;
+      });
+    });
+
+    document.getElementById('uploadProfilePic').addEventListener('click', function() {
+      // Logic to upload profile picture
+      alert('Profile picture upload feature is not implemented yet.');
+    });
+
+    document.getElementById('saveAsPdf').addEventListener('click', function() {
+      html2pdf().from(document.getElementById('resumePreview')).save('resume.pdf');
+    });
+  </script>
+</body>
+</html>
